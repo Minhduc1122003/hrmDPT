@@ -158,7 +158,7 @@ class _HomeTabState extends State<HomeTab> {
                 child: SizedBox(
                   width: cardWidth,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(5),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -198,7 +198,7 @@ class _HomeTabState extends State<HomeTab> {
 // Attendance Status
                         Flexible(
                           child: Padding(
-                            padding: const EdgeInsets.all(5),
+                            padding: const EdgeInsets.all(1),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: const [
@@ -207,7 +207,7 @@ class _HomeTabState extends State<HomeTab> {
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                                    fontSize: 13,
                                   ),
                                   textAlign: TextAlign.left,
                                 ),
@@ -357,20 +357,19 @@ class _HomeTabState extends State<HomeTab> {
                       fontSize: 14,
                     ),
                   ),
-                  const SizedBox(height: 8),
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.blue,
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(5),
                       child: Text(
-                        count,
+                        count.length < 2 ? ' $count ' : count,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          fontSize: 18,
+                          fontSize: 14,
                         ),
                       ),
                     ),
