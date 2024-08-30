@@ -26,7 +26,7 @@ class _HomeTabState extends State<HomeTab> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.blue,
             body: SafeArea(
               child: Column(
                 children: [
@@ -34,20 +34,23 @@ class _HomeTabState extends State<HomeTab> {
                   _buildDateTimeDisplay(),
                   Expanded(
                     child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 10),
-                          _buildGridView(),
-                          const SizedBox(height: 20),
-                          FilmSlideshow(
-                            imageList: const [
-                              'assets/images/slide1.png',
-                              'assets/images/slide2.jpg',
-                              'assets/images/slide3.jpg',
-                            ],
-                          ),
-                          const SizedBox(height: 80),
-                        ],
+                      child: Container(
+                        color: Colors.white,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 10),
+                            _buildGridView(),
+                            const SizedBox(height: 20),
+                            FilmSlideshow(
+                              imageList: const [
+                                'assets/images/slide1.png',
+                                'assets/images/slide2.jpg',
+                                'assets/images/slide3.jpg',
+                              ],
+                            ),
+                            const SizedBox(height: 80),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -64,7 +67,7 @@ class _HomeTabState extends State<HomeTab> {
 
   Widget _buildAppBar() {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
       color: AppTheme.primaryColor,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
