@@ -8,6 +8,7 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import '../../navigation/view/countTest.dart';
 import '../hometab.dart';
+import 'donTu/donTu_screen.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({Key? key}) : super(key: key);
@@ -292,87 +293,106 @@ class _HomeTabState extends State<HomeTab> {
           physics: const NeverScrollableScrollPhysics(),
           children: [
             _buildGridItem('Nhân sự', 'Quản lý nhân sự', state.nhanSu,
-                Icons.people, Colors.blue),
+                Icons.people, Colors.blue, () {
+              // Thêm sự kiện khi tap vào Nhân sự
+              print('Nhân sự pressed');
+              // Xử lý logic hoặc điều hướng đến màn hình khác
+            }),
             _buildGridItem('Tuyển dụng', 'CV đầu vào', state.tuyenDung,
-                Icons.work, Colors.green),
+                Icons.work, Colors.green, () {
+              // Thêm sự kiện khi tap vào Tuyển dụng
+              print('Tuyển dụng pressed');
+            }),
             _buildGridItem('Đơn từ', 'Đơn cần xử lý', state.donTu,
-                Icons.description, Colors.orange),
+                Icons.description, Colors.orange, () {
+              // Thêm sự kiện khi tap vào Đơn từ
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => QuanLyDonTuPage()),
+              );
+            }),
             _buildGridItem('Cuộc họp', 'Sắp diễn ra', state.count, Icons.event,
-                Colors.purple),
+                Colors.purple, () {
+              // Thêm sự kiện khi tap vào Cuộc họp
+              print('Cuộc họp pressed');
+            }),
           ],
         );
       },
     );
   }
 
-  Widget _buildGridItem(
-      String title, String title2, String count, IconData icon, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: 16,
-            left: 16,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                    fontSize: 16,
+  Widget _buildGridItem(String title, String title2, String count,
+      IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 16,
+              left: 16,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                      fontSize: 16,
+                    ),
                   ),
-                ),
-                Text(
-                  title2,
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
+                  Text(
+                    title2,
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      count,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 18,
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        count,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Positioned(
-            right: 10,
-            bottom: 10,
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: SizedBox(
-                width: 100,
-                height: 100,
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 50,
+            Positioned(
+              right: 10,
+              bottom: 10,
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: Icon(
+                    icon,
+                    color: color,
+                    size: 50,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

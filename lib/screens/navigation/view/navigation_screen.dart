@@ -32,8 +32,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          HomeTabBloc()..add(LoadHomeTabData('0', '1', '3', '90', '0')),
+      create: (context) => HomeTabBloc()
+        ..add(LoadHomeTabData('Lê Minh Đức', '5', '3', '90', '20')),
       child: Scaffold(
         body: Stack(
           children: [
