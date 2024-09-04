@@ -11,7 +11,11 @@ class QuanLyDonTuPage extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.blue,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_outlined, color: Colors.white),
+            icon: Icon(
+              Icons.arrow_back_ios_new_outlined,
+              color: Colors.white,
+              size: 18,
+            ),
             onPressed: () {
               Navigator.of(context).pop();
             },

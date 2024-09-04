@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hrm/screens/navigation/bloc/navigation_bloc.dart';
 import 'package:hrm/theme/theme.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:auto_size_text/auto_size_text.dart'; // Import package
 
 import '../../navigation/view/countTest.dart';
 import '../hometab.dart';
@@ -67,7 +69,7 @@ class _HomeTabState extends State<HomeTab> {
 
   Widget _buildAppBar() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
       color: AppTheme.primaryColor,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -158,7 +160,7 @@ class _HomeTabState extends State<HomeTab> {
                 child: SizedBox(
                   width: cardWidth,
                   child: Padding(
-                    padding: const EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(10),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -166,7 +168,7 @@ class _HomeTabState extends State<HomeTab> {
 // Date Badge
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 5),
+                              horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
                             color: Colors.green,
                             borderRadius: BorderRadius.circular(8),
@@ -202,14 +204,19 @@ class _HomeTabState extends State<HomeTab> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: const [
-                                Text(
+                                AutoSizeText(
                                   'Hôm nay bạn chưa chấm công',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 13,
+                                    fontSize: 16,
                                   ),
                                   textAlign: TextAlign.left,
+
+                                  maxLines: 1, // Giới hạn số dòng hiển thị là 2
+
+                                  minFontSize:
+                                      12, // Kích thước font tối thiểu khi tự động điều chỉnh
                                 ),
                                 SizedBox(height: 4),
                                 Wrap(
@@ -298,7 +305,7 @@ class _HomeTabState extends State<HomeTab> {
             _buildGridItem('Nhân sự', 'Quản lý nhân sự', state.nhanSu,
                 Icons.people, Colors.blue, () {
               // Thêm sự kiện khi tap vào Nhân sự
-              print('Nhân sự pressed');
+              context.read<NavigationBloc>().add(NavigationTabChanged(1));
               // Xử lý logic hoặc điều hướng đến màn hình khác
             }),
             _buildGridItem('Tuyển dụng', 'CV đầu vào', state.tuyenDung,

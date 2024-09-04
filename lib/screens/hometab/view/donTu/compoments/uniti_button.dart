@@ -14,13 +14,11 @@ class UtilitySection extends StatefulWidget {
 
 class _UtilitySectionState extends State<UtilitySection> {
   bool _showAllButtons = false;
-  // Map để lưu trạng thái toggle của các nút
   final Map<int, bool> _toggleStates = {};
 
   @override
   void initState() {
     super.initState();
-    // Khởi tạo trạng thái toggle cho từng nút
     for (int i = 0; i < widget.buttons.length; i++) {
       _toggleStates[i] = widget.buttons[i].isToggled;
     }
@@ -29,7 +27,6 @@ class _UtilitySectionState extends State<UtilitySection> {
   void _handleToggleChanged(int index, bool newState) {
     setState(() {
       _toggleStates[index] = newState;
-      // In giá trị của toggle khi thay đổi trạng thái
       if (widget.buttons[index].title == 'Ngôn ngữ') {
         print('Trạng thái toggle hiện tại của "Ngôn ngữ": $newState');
       }
@@ -59,9 +56,8 @@ class _UtilitySectionState extends State<UtilitySection> {
                 curve: Curves.easeInOut,
                 height: _showAllButtons
                     ? null
-                    : (widget.buttons.length > 5
-                        ? 5 * 48.0 // Chiều cao của 5 nút
-                        : widget.buttons.length * 60.0),
+                    : (visibleButtons.length *
+                        56.0), // Adjusted height calculation
                 child: Column(
                   children: visibleButtons.asMap().entries.map((entry) {
                     final index = entry.key;
@@ -148,19 +144,23 @@ class UtilityButton extends StatelessWidget {
     }
 
     return ListTile(
+      contentPadding: EdgeInsets.symmetric(
+          vertical: 0.0, horizontal: 16.0), // Thêm dòng này
       title: Text(
         title,
         style: TextStyle(color: colorText),
       ),
       trailing: trailingIcon,
+      visualDensity:
+          VisualDensity.compact, // Thêm dòng này để tối ưu hóa không gian
       onTap: () {
         if (trailingIconType == TrailingIconType.toggle) {
           bool newState = !isToggled;
           if (onToggleChanged != null) {
-            onToggleChanged!(newState); // Gọi callback với trạng thái mới
+            onToggleChanged!(newState);
           }
         }
-        onPressed(); // Gọi hàm onPressed bên ngoài
+        onPressed();
       },
     );
   }
