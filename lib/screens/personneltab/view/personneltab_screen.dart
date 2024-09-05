@@ -98,7 +98,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
         backgroundColor: Colors.blue,
         title: Text(
           'Quản lý nhân sự',
-          style: TextStyle(color: Colors.white, fontSize: 20),
+          style: TextStyle(color: Colors.white, fontSize: 18),
         ),
         centerTitle: true,
       ),

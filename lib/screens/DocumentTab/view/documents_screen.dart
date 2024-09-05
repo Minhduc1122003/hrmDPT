@@ -22,11 +22,11 @@ class _DocumentTabState extends State<DocumentTab> {
           backgroundColor: Colors.blue,
           title: Text(
             'Quản lý đơn từ',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white, fontSize: 18),
           ),
           centerTitle: true,
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(50.0), // Đặt chiều cao của AppBar
+            preferredSize: Size.fromHeight(30.0), // Đặt chiều cao của AppBar
             child: Container(
               height: 40, // Chiều cao của TabBar
               child: TabBar(

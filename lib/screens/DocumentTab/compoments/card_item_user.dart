@@ -72,25 +72,32 @@ class _ExpandableCardState extends State<ExpandableCard>
             color: _isExpanded
                 ? Colors.blue.withOpacity(1)
                 : Colors.blue.withOpacity(0.6),
-            width: 5.0,
+            width: 3.0,
+          ),
+          left: BorderSide(
+            color: _isExpanded
+                ? Colors.blue.withOpacity(1)
+                : Colors.blue.withOpacity(0.6),
+            width: 1.5,
           ),
         ),
       ),
       child: GestureDetector(
-        onTap: _toggleExpansion, // Tạo sự kiện nhấn cho toàn bộ card
-
+        onTap: _toggleExpansion,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: Card(
             margin: EdgeInsets.zero,
+            color: Colors.white, // Thiết lập màu nền của Card
             child: Stack(
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      color:
-                          _isExpanded ? Color(0XFC4DFF6FF) : Color(0XFFf0f0f0),
+                      color: _isExpanded
+                          ? Color(0XFC4DFF6FF)
+                          : Colors.white, // Màu nền của container bên trong
                       child: ListTile(
                         contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                         title: Row(
@@ -239,7 +246,7 @@ class _ExpandableCardState extends State<ExpandableCard>
                                       maxLines: 3,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    SizedBox(height: 8),
+                                    SizedBox(height: 10),
                                     Align(
                                       alignment: Alignment.bottomRight,
                                       child: Material(
@@ -285,7 +292,7 @@ class _ExpandableCardState extends State<ExpandableCard>
                   ],
                 ),
                 Positioned(
-                  bottom: -10,
+                  bottom: -15,
                   left: 0,
                   right: 0,
                   child: Align(
