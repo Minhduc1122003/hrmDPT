@@ -1,109 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:hrm/screens/hometab/view/donTu/compoments/card_item_user.dart';
-import 'package:hrm/screens/hometab/view/donTu/compoments/uniti_button.dart';
+import 'package:hrm/screens/DocumentTab/compoments/card_item_user.dart';
 
-class QuanLyDonTuPage extends StatelessWidget {
+class TabContent extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blue,
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new_outlined,
-              color: Colors.white,
-              size: 18,
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          title: Text(
-            'Quản lý đơn từ',
-            style: TextStyle(color: Colors.white),
-          ),
-          centerTitle: true,
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(50.0), // Đặt chiều cao của AppBar
-
-            child: Container(
-              height: 40, // Chiều cao của TabBar
-
-              child: TabBar(
-                indicatorColor: Colors.blue,
-                dividerHeight: 0,
-                indicator: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                    bottomLeft:
-                        Radius.circular(0), // Không bo góc dưới bên trái
-                    bottomRight: Radius.circular(0),
-                  ),
-                ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                labelColor: Colors.blue,
-                unselectedLabelColor: Colors.white,
-                tabs: const [
-                  Tab(text: 'Của bạn'),
-                  Tab(text: 'Quản lý'),
-                  Tab(text: 'Tạo đơn'),
-                ],
-              ),
-            ),
-          ),
-        ),
-        body: Container(
-          color: Colors.white,
-          child: TabBarView(
-            children: [
-              _TabContent(),
-              Center(child: Text('Tạo đơn mới')),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    UtilitySection(
-                      buttons: [
-                        UtilityButton(
-                          colorText: Colors.blue,
-                          color: Colors.pink,
-                          title: 'Cộng tác dưới 7 ngày',
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
-                    UtilitySection(
-                      buttons: [
-                        UtilityButton(
-                          colorText: Colors.blue,
-                          color: Colors.pink,
-                          title: 'Cộng tác dưới 7 ngày',
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  _TabContentState createState() => _TabContentState();
 }
 
-class _TabContent extends StatefulWidget {
-  @override
-  __TabContentState createState() => __TabContentState();
-}
-
-class __TabContentState extends State<_TabContent>
+class _TabContentState extends State<TabContent>
     with AutomaticKeepAliveClientMixin {
   late Future<List<Map<String, dynamic>>> _dataFuture;
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hrm/screens/DocumentTab/documentTab.dart';
 import 'package:hrm/screens/hometab/bloc/hometab_bloc.dart';
 import '../../../theme/theme.dart';
 import '../../hometab/hometab.dart';
@@ -24,7 +25,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
       Container(
           key: ValueKey('recruitment'),
           child: Center(child: Text('Recruitment'))),
-      Container(key: ValueKey('forms'), child: Center(child: Text('Forms'))),
+      DocumentTab(key: ValueKey('document')),
       Container(
           key: ValueKey('meetings'), child: Center(child: Text('Meetings'))),
     ];

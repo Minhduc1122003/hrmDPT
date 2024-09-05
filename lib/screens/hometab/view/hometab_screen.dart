@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hrm/screens/navigation/bloc/navigation_bloc.dart';
+import 'package:hrm/screens/timekeeping/timekeeping_screen.dart';
 import 'package:hrm/theme/theme.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -10,7 +11,6 @@ import 'package:auto_size_text/auto_size_text.dart'; // Import package
 
 import '../../navigation/view/countTest.dart';
 import '../hometab.dart';
-import 'donTu/donTu_screen.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({Key? key}) : super(key: key);
@@ -268,15 +268,18 @@ class _HomeTabState extends State<HomeTab> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: IconButton(
-                              icon: const Icon(
-                                Icons.fullscreen,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                              onPressed: () => context
-                                  .read<HomeTabBloc>()
-                                  .add(IncrementCount()),
-                            ),
+                                icon: const Icon(
+                                  Icons.fullscreen,
+                                  color: Colors.white,
+                                  size: 40,
+                                ),
+                                onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            TimekeepingScreen(),
+                                      ),
+                                    )),
                           ),
                         ),
                       ],
@@ -316,10 +319,7 @@ class _HomeTabState extends State<HomeTab> {
             _buildGridItem('Đơn từ', 'Đơn cần xử lý', state.donTu,
                 Icons.description, Colors.orange, () {
               // Thêm sự kiện khi tap vào Đơn từ
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => QuanLyDonTuPage()),
-              );
+              context.read<NavigationBloc>().add(NavigationTabChanged(3));
             }),
             _buildGridItem('Cuộc họp', 'Sắp diễn ra', state.count, Icons.event,
                 Colors.purple, () {

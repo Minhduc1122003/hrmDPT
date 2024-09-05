@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hrm/screens/DocumentTab/documentTab.dart';
 import '../../../theme/theme.dart';
 import '../../hometab/hometab.dart';
 import '../../personneltab/personneltab.dart';
@@ -58,6 +59,8 @@ class NavigationScreen extends StatelessWidget {
       return HomeTab();
     } else if (state is PersonnelState) {
       return PersonnelTab(key: ValueKey('personnel'));
+    } else if (state is DocumentsState) {
+      return DocumentTab(key: ValueKey('document'));
     } else {
       return Container(key: ValueKey('default'));
     }
