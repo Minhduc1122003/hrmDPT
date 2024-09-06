@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hrm/screens/timekeeping/bloc/timekeeping_bloc.dart';
+import 'dart:async';
+
+import 'package:hrm/screens/timekeeping/compoments/timekeeping_history_calendar.dart'; // Thư viện cần thiết cho Timer
 
 class TimekeepingScreen extends StatefulWidget {
   const TimekeepingScreen();
@@ -10,6 +13,34 @@ class TimekeepingScreen extends StatefulWidget {
 }
 
 class _TimekeepingScreenState extends State<TimekeepingScreen> {
+  late Timer _timer;
+  String _currentTime = _getCurrentTime();
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _currentTime = _getCurrentTime();
+      });
+    });
+  }
+
+  static String _getCurrentTime() {
+    final now = DateTime.now();
+    return '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -73,28 +104,39 @@ class _TimekeepingScreenState extends State<TimekeepingScreen> {
           ),
           body: TabBarView(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: BlocBuilder<TimekeepingBloc, TimekeepingBlocState>(
-                      builder: (context, state) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(state.dateFormat),
-                            const SizedBox(width: 20),
-                            Text(state.realTimeClock),
-                          ],
-                        );
-                      },
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: BlocBuilder<TimekeepingBloc, TimekeepingBlocState>(
+                        builder: (context, state) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(state.dateFormat),
+                              const SizedBox(width: 20),
+                              Text(_currentTime), // Hiển thị thời gian hiện tại
+                            ],
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  // Các thành phần UI khác ở đây
-                ],
+                    // Các thành phần UI khác ở đây
+                  ],
+                ),
               ),
-              const Center(child: Text('Tạo đơn mới')),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height *
+                        0.5, // Ví dụ: giới hạn chiều cao tối đa bằng 50% chiều cao màn hình
+                  ),
+                  child: TimekeepingHistoryCalendar(),
+                ),
+              ),
             ],
           ),
         ),

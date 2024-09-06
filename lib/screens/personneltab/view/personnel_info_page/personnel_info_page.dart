@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:hrm/model/listUser_model.dart';
 import 'package:hrm/screens/personneltab/view/personnel_info_page/compoments/card_asset.dart';
+import 'package:intl/intl.dart';
 
 class PersonnelInfoPage extends StatefulWidget {
-  final String name;
+  final ListuserModel usermodel;
 
-  const PersonnelInfoPage(this.name, {Key? key}) : super(key: key);
+  const PersonnelInfoPage(this.usermodel, {Key? key}) : super(key: key);
 
   @override
   _PersonnelInfoPageState createState() => _PersonnelInfoPageState();
@@ -13,6 +15,12 @@ class PersonnelInfoPage extends StatefulWidget {
 
 class _PersonnelInfoPageState extends State<PersonnelInfoPage> {
   int selectedTab = 0; // 0: Trạng thái, 1: Tài sản, 2: Công việc
+  //định dạng ngày
+  String _formatDate(String date) {
+    final DateTime parsedDate = DateTime.parse(date);
+    final DateFormat formatter = DateFormat('dd/MM/yyyy');
+    return formatter.format(parsedDate);
+  }
 
   void onTabSelected(int index) {
     setState(() {
@@ -73,7 +81,7 @@ class _PersonnelInfoPageState extends State<PersonnelInfoPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      widget.name,
+                      widget.usermodel.name.toString(),
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
@@ -85,14 +93,7 @@ class _PersonnelInfoPageState extends State<PersonnelInfoPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '@leminhduc1122003',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      'Junior UI/UX Designer',
+                      widget.usermodel.no.toString(),
                       style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                     ),
                   ],
@@ -190,14 +191,13 @@ class _PersonnelInfoPageState extends State<PersonnelInfoPage> {
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           Text(
             'Chi tiết',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 8),
           // Thêm nội dung trạng thái nhân sự với tiêu đề "Chi tiết"
-
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -209,25 +209,59 @@ class _PersonnelInfoPageState extends State<PersonnelInfoPage> {
                     'Email: ',
                   ),
                   Expanded(
-                      child: Text(
-                    'minhduc1122003',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
+                    child: Text(
+                      widget.usermodel.emailAddress.toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ],
               ),
               SizedBox(height: 4),
               Row(
                 children: [
-                  Icon(Icons.phone_outlined, size: 20),
+                  Icon(Icons.calendar_month_outlined, size: 20),
                   SizedBox(width: 8),
                   Text(
-                    'Số điện thoại: ',
+                    'Ngày tạo: ',
                   ),
                   Expanded(
-                      child: Text(
-                    '0382006372',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
+                    child: Text(
+                      _formatDate(widget.usermodel.createdDate.toString()),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.person, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Người tạo: ',
+                  ),
+                  Expanded(
+                    child: Text(
+                      widget.usermodel.createdBy.toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.calendar_month_outlined, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Ngày cập nhật: ',
+                  ),
+                  Expanded(
+                    child: Text(
+                      _formatDate(widget.usermodel.updatedDate.toString()),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ],
               ),
               SizedBox(height: 4),
@@ -236,43 +270,14 @@ class _PersonnelInfoPageState extends State<PersonnelInfoPage> {
                   Icon(Icons.person_outlined, size: 20),
                   SizedBox(width: 8),
                   Text(
-                    'Ngày sinh: ',
+                    'Người cập nhật: ',
                   ),
                   Expanded(
-                      child: Text(
-                    '01/12/2003',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
-                ],
-              ),
-              SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(Icons.location_on_outlined, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'Địa chỉ: ',
+                    child: Text(
+                      widget.usermodel.updatedBy.toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  Expanded(
-                      child: Text(
-                    '14/8 Nguyễn Thái Sơn, Gò Vấp',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
-                ],
-              ),
-              SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(Icons.group_outlined, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'Quản lý: ',
-                  ),
-                  Expanded(
-                      child: Text(
-                    'Minh Đức',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  )),
                 ],
               ),
             ],

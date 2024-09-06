@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hrm/model/login_model.dart';
+import 'package:hrm/screens/login/logintab.dart';
 import 'package:hrm/screens/navigation/bloc/navigation_bloc.dart';
 import 'package:hrm/screens/timekeeping/timekeeping_screen.dart';
 import 'package:hrm/theme/theme.dart';
@@ -80,11 +82,47 @@ class _HomeTabState extends State<HomeTab> {
                 builder: (context, state) {
                   return Row(
                     children: [
-                      CircleAvatar(
-                        backgroundImage:
-                            AssetImage('assets/images/profile.png'),
-// Sử dụng AssetImage để khai báo tài nguyên
-                        radius: 20,
+                      InkWell(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Đăng xuất"),
+                                content: Text(
+                                    "Bạn có chắc chắn muốn đăng xuất không?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context)
+                                          .pop(); // Đóng dialog
+                                    },
+                                    child: Text("Hủy"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Xử lý đăng xuất tại đây
+                                      User.name = 'Lê Minh Đức';
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                LoginScreen()),
+                                        (Route<dynamic> route) => false,
+                                      );
+                                    },
+                                    child: Text("Đăng xuất"),
+                                  )
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: CircleAvatar(
+                          backgroundImage:
+                              AssetImage('assets/images/profile.png'),
+                          radius: 20,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Column(

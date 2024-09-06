@@ -18,8 +18,8 @@ class MyButton extends StatelessWidget {
     this.border = false, // Mặc định không có đường viền
     this.onTap,
     required this.fontsize,
-    this.color = const Color(
-        0XFF6F3CD7), // Mặc định là màu 0XFF6F3CD7 nếu không được truyền vào
+    this.color =
+        Colors.blue, // Mặc định là màu 0XFF6F3CD7 nếu không được truyền vào
     this.colorText = Colors.white, // Màu văn bản mặc định
   });
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hrm/model/login_model.dart';
 import 'package:hrm/screens/DocumentTab/documentTab.dart';
 import 'package:hrm/screens/hometab/bloc/hometab_bloc.dart';
 import '../../../theme/theme.dart';
@@ -68,7 +69,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
       onWillPop: _onWillPop, // Đăng ký phương thức xử lý nhấn nút quay lại
       child: BlocProvider(
         create: (context) => HomeTabBloc()
-          ..add(LoadHomeTabData('Lê Minh Đức', '5', '3', '90', '20')),
+          ..add(LoadHomeTabData(
+              User.name, '5', '3', '90', '20')),
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           body: Stack(

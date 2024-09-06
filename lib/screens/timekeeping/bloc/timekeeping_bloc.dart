@@ -15,7 +15,7 @@ class TimekeepingBloc extends Bloc<TimekeepingBlocEvent, TimekeepingBlocState> {
           realTimeClock: '',
         )) {
     on<InitTime>(_onInitTime);
-    on<UpdateTime>(_onUpdateTime); // Lắng nghe sự kiện UpdateTime
+    on<UpdateTime>(_onUpdateTime);
     _startClock();
   }
 
@@ -29,7 +29,7 @@ class TimekeepingBloc extends Bloc<TimekeepingBlocEvent, TimekeepingBlocState> {
 
   void _startClock() {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      add(UpdateTime()); // Gửi sự kiện UpdateTime mỗi giây
+      add(UpdateTime());
     });
   }
 
@@ -59,7 +59,7 @@ class TimekeepingBloc extends Bloc<TimekeepingBlocEvent, TimekeepingBlocState> {
 
   @override
   Future<void> close() {
-    _timer?.cancel(); // Hủy timer khi bloc bị đóng
+    _timer?.cancel();
     return super.close();
   }
 }

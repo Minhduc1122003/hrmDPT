@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
+import 'package:hrm/model/listUser_model.dart';
+import 'package:hrm/model/login_model.dart';
+import 'package:hrm/network/api_provider.dart';
 import 'package:hrm/screens/personneltab/view/personnel_info_page/personnel_info_page.dart';
 
 class PersonnelTab extends StatefulWidget {
@@ -10,85 +12,112 @@ class PersonnelTab extends StatefulWidget {
 }
 
 class _PersonnelTabState extends State<PersonnelTab> {
-  List<Map<String, dynamic>> allPersonnel = [
-    {
-      "name": "Phạm Tùng Dương",
-      "role": "Senior UI/UX Designer",
-      "active": true
-    },
-    {"name": "Bùi Quang Huy", "role": "Junior UI/UX Designer", "active": false},
-    {"name": "Đặng Trung Đức", "role": "Junior UI/UX Designer", "active": true},
-    {"name": "Phạm Minh Tuấn", "role": "3D Artist Game", "active": true},
-    {"name": "Đào Trung Quân", "role": "2D Artist Game", "active": false},
-    {"name": "Bùi Quang Nam", "role": "Junior UI/UX Designer", "active": false},
-    {"name": "Đặng Trung Đức", "role": "Junior UI/UX Designer", "active": true},
-    {"name": "Phạm Minh Tuấn", "role": "3D Artist Game", "active": true},
-    {"name": "Đào Trung Quân", "role": "2D Artist Game", "active": false},
-  ];
-
-  List<Map<String, dynamic>> displayedPersonnel = [];
-  bool showAllActive = true;
-  bool showActive = true;
+  late ApiProvider _apiProvider;
+  final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = '';
+
+  List<ListuserModel> _allUsers = []; // Danh sách toàn bộ người dùng
+  List<ListuserModel> _displayedUsers = []; // Danh sách hiển thị theo tìm kiếm
+  bool _isLoading = false;
+  bool _hasMore = true;
+  bool _isSearchLoading = false; // Thêm biến để kiểm soát trạng thái tìm kiếm
+  int _page = 1;
+  int _pageSize = 10;
 
   @override
   void initState() {
     super.initState();
-    updateDisplayedPersonnel('all');
-  }
+    _apiProvider = ApiProvider();
+    _loadAllUsers(); // Tải toàn bộ người dùng một lần duy nhất
 
-  void updateDisplayedPersonnel(String tab) {
-    List<Map<String, dynamic>> filteredList;
-
-    if (tab == 'all') {
-      filteredList = List.from(allPersonnel);
-      showAllActive = true;
-      showActive = false;
-    } else if (tab == 'active') {
-      filteredList = allPersonnel.where((person) => person['active']).toList();
-      showAllActive = false;
-      showActive = true;
-    } else if (tab == 'inactive') {
-      filteredList = allPersonnel.where((person) => !person['active']).toList();
-      showAllActive = false;
-      showActive = false;
-    } else {
-      filteredList = List.from(allPersonnel);
-    }
-
-    setState(() {
-      displayedPersonnel = filteredList;
-      filterPersonnel();
-    });
-  }
-
-  void filterPersonnel() {
-    setState(() {
-      if (showAllActive) {
-        displayedPersonnel = allPersonnel
-            .where((person) => person['name']
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()))
-            .toList();
-      } else if (showActive) {
-        displayedPersonnel = allPersonnel
-            .where((person) =>
-                person['active'] &&
-                person['name']
-                    .toLowerCase()
-                    .contains(searchQuery.toLowerCase()))
-            .toList();
-      } else {
-        displayedPersonnel = allPersonnel
-            .where((person) =>
-                !person['active'] &&
-                person['name']
-                    .toLowerCase()
-                    .contains(searchQuery.toLowerCase()))
-            .toList();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+              _scrollController.position.maxScrollExtent &&
+          !_isLoading &&
+          _hasMore) {
+        _loadMore(); // Tải thêm dữ liệu từ danh sách đã lưu trữ
       }
     });
+
+    // Lắng nghe thay đổi trong ô tìm kiếm
+    _searchController.addListener(() {
+      _filterUsers(_searchController.text);
+    });
+  }
+
+  void _filterUsers(String query) {
+    final lowerCaseQuery = query.toLowerCase();
+
+    setState(() {
+      searchQuery = query;
+      _isSearchLoading = true; // Bắt đầu trạng thái tìm kiếm
+
+      // Lọc danh sách người dùng
+      _displayedUsers = _allUsers.where((user) {
+        final nameLower = user.name?.toLowerCase();
+        final noLower = user.no?.toLowerCase();
+        return nameLower!.contains(lowerCaseQuery) ||
+            noLower!.contains(lowerCaseQuery);
+      }).toList();
+
+      _isSearchLoading = false; // Kết thúc trạng thái tìm kiếm
+    });
+  }
+
+  Future<void> _loadAllUsers() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final allUsers = await _apiProvider.getListUser(User.site, User.token);
+
+      setState(() {
+        _allUsers = allUsers;
+        _filterUsers(searchQuery); // Lọc ngay sau khi tải danh sách người dùng
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasMore = false;
+      });
+      print('Error loading users: $e');
+    }
+  }
+
+  Future<void> _loadMore() async {
+    if (_hasMore && !_isLoading) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Tính toán chỉ số của trang tiếp theo
+      final nextPageStartIndex = _page * _pageSize;
+      final nextPageEndIndex =
+          (_allUsers.length < nextPageStartIndex + _pageSize)
+              ? _allUsers.length
+              : nextPageStartIndex + _pageSize;
+
+      if (nextPageStartIndex < _allUsers.length) {
+        setState(() {
+          _displayedUsers.addAll(_allUsers.sublist(nextPageStartIndex,
+              nextPageEndIndex)); // Thêm dữ liệu vào danh sách hiển thị
+          _isLoading = false;
+
+          if (_displayedUsers.length >= _allUsers.length) {
+            _hasMore = false; // Nếu đã tải hết dữ liệu, dừng tải thêm
+          } else {
+            _page++;
+          }
+        });
+      } else {
+        setState(() {
+          _isLoading = false; // Đặt lại _isLoading nếu không còn dữ liệu để tải
+        });
+      }
+    }
   }
 
   @override
@@ -105,81 +134,14 @@ class _PersonnelTabState extends State<PersonnelTab> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
-              padding: EdgeInsets.all(3),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        updateDisplayedPersonnel('all');
-                      },
-                      child: Text('Tất cả (${allPersonnel.length})'),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor:
-                            showAllActive ? Colors.white : Color(0XFF0e3b82),
-                        backgroundColor:
-                            showAllActive ? Colors.blue : Colors.blue[100],
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        updateDisplayedPersonnel('active');
-                      },
-                      child: AutoSizeText(
-                        'Đang hoạt động (${allPersonnel.where((p) => p['active']).length})',
-                        maxLines: 1,
-                        minFontSize: 12,
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor:
-                            showActive ? Colors.white : Color(0XFF0d8253),
-                        backgroundColor:
-                            showActive ? Color(0XFF067d4d) : Color(0XFFd0e3cf),
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        updateDisplayedPersonnel('inactive');
-                      },
-                      child: AutoSizeText(
-                        'Không hoạt động (${allPersonnel.where((p) => !p['active']).length})',
-                        maxLines: 1,
-                        minFontSize: 12,
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: (!showAllActive && !showActive)
-                            ? Colors.white
-                            : Color(0XFFb52429),
-                        backgroundColor: (!showAllActive && !showActive)
-                            ? Color(0XFFc74850)
-                            : Color(0XFFe3cfcf),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                 controller: _searchController,
-                onChanged: (value) {
-                  setState(() {
-                    searchQuery = value;
-                    filterPersonnel();
-                  });
-                },
                 decoration: InputDecoration(
-                  isDense:
-                      true, // Thuộc tính này giúp giảm chiều cao của TextField
-                  contentPadding: EdgeInsets.symmetric(
-                      vertical: 12.0), // Giảm padding để giảm chiều cao
-                  prefixIcon: Icon(Icons.search,
-                      size: 20), // Điều chỉnh kích thước icon nếu cần
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 12.0),
+                  prefixIcon: Icon(Icons.search, size: 20),
                   suffixIcon: searchQuery.isNotEmpty
                       ? IconButton(
                           icon: Icon(Icons.clear),
@@ -187,7 +149,8 @@ class _PersonnelTabState extends State<PersonnelTab> {
                             setState(() {
                               _searchController.clear();
                               searchQuery = '';
-                              filterPersonnel();
+                              _filterUsers(
+                                  ''); // Hiển thị lại toàn bộ danh sách
                             });
                           },
                         )
@@ -200,70 +163,66 @@ class _PersonnelTabState extends State<PersonnelTab> {
               ),
             ),
             Container(
-              height: MediaQuery.of(context).size.height -
-                  270, // Adjust height as needed
-              child: ListView.builder(
-                itemCount: displayedPersonnel.length,
-                itemBuilder: (context, index) {
-                  final person = displayedPersonnel[index];
-                  return ListTile(
-                    leading: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: CircleAvatar(
-                            backgroundColor: null,
-                            backgroundImage:
-                                AssetImage('assets/images/profile.png'),
-                            radius: 23,
-                          ),
-                        ),
-                        if (person['active'] != null)
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              width: 13,
-                              height: 13,
+              height: MediaQuery.of(context).size.height - 200,
+              child: Stack(
+                children: [
+                  ListView.builder(
+                    controller: _scrollController,
+                    itemCount: _displayedUsers.length + (_hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _displayedUsers.length) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+
+                      ListuserModel user = _displayedUsers[index];
+                      return ListTile(
+                        leading: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
                               decoration: BoxDecoration(
-                                color: person['active']
-                                    ? Colors.green
-                                    : Color(0XFFb52429),
                                 shape: BoxShape.circle,
                                 border:
                                     Border.all(color: Colors.white, width: 2),
                               ),
+                              child: CircleAvatar(
+                                backgroundColor: null,
+                                backgroundImage:
+                                    AssetImage('assets/images/profile.png'),
+                                radius: 23,
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
-                    title: Text(
-                      person['name'],
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      person['role'],
-                      style: TextStyle(fontSize: 12),
-                    ),
-                    trailing: Icon(Icons.chevron_right, color: Colors.black54),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PersonnelInfoPage(person['name'].toString()),
+                          ],
                         ),
+                        title: Text(
+                          user.name.toString(),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          user.no.toString(),
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        trailing:
+                            Icon(Icons.chevron_right, color: Colors.black54),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PersonnelInfoPage(user),
+                            ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
+                  ),
+                  if (_isLoading) // Hiển thị spinner khi phân trang đang tải
+                    Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                ],
               ),
             ),
           ],
