@@ -1,3 +1,15 @@
+buildscript {
+    ext.kotlin_version = '1.9.0' // Cập nhật từ 1.8.0 lên 1.9.0
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.1.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0" // Cập nhật từ 1.8.0 lên 1.9.0
+    }
+}
 allprojects {
     repositories {
         google()

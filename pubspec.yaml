@@ -42,6 +42,9 @@ dependencies:
   shared_preferences: ^2.3.2
   shared_preferences_android: ^2.3.2
   crypto: ^3.0.5
+  google_maps_flutter: ^2.9.0
+  geolocator: ^9.0.2
+
 
 
 dev_dependencies:

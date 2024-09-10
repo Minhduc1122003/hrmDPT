@@ -69,8 +69,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
       onWillPop: _onWillPop, // Đăng ký phương thức xử lý nhấn nút quay lại
       child: BlocProvider(
         create: (context) => HomeTabBloc()
-          ..add(LoadHomeTabData(
-              User.name, '5', '3', '90', '20')),
+          ..add(LoadHomeTabData(User.name, '5', '3', '90', '20')),
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           body: Stack(
