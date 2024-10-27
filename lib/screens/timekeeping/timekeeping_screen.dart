@@ -1,11 +1,15 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hrm/screens/timekeeping/bloc/timekeeping_bloc.dart';
-import 'dart:async';
-import 'package:hrm/screens/timekeeping/compoments/timekeeping_history_calendar.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:hrm/screens/timekeeping/bloc/timekeeping_bloc.dart';
+import 'package:hrm/screens/timekeeping/compoments/timekeeping_history_calendar.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TimekeepingScreen extends StatefulWidget {
   const TimekeepingScreen();
@@ -18,15 +22,19 @@ class _TimekeepingScreenState extends State<TimekeepingScreen> {
   late Timer _timer;
   String _currentTime = _getCurrentTime();
   bool _isMapVisible = false;
+  bool _isLocationPermissionGranted = false;
   LatLng? _currentPosition;
   GoogleMapController? _mapController;
   final LatLng _targetPosition =
       LatLng(10.830126, 106.618113); // Tọa độ nơi làm việc
   final double banKinh = 50;
+  String? _selectedImagePath; // Biến lưu đường dẫn ảnh đã chọn
+
   @override
   void initState() {
     super.initState();
     _startTimer();
+    _checkLocationPermission();
   }
 
   @override
@@ -49,28 +57,29 @@ class _TimekeepingScreenState extends State<TimekeepingScreen> {
     return '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}';
   }
 
+  Future<void> _checkLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse) {
+      _requestLocation();
+      setState(() {
+        _isLocationPermissionGranted = true;
+      });
+    }
+  }
+
   Future<void> _requestLocationPermission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
+    LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse) {
+      _requestLocation();
+      setState(() {
+        _isLocationPermissionGranted = true;
+      });
     }
+  }
 
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
+  Future<void> _requestLocation() async {
     Position position = await Geolocator.getCurrentPosition();
     setState(() {
       _currentPosition = LatLng(position.latitude, position.longitude);
@@ -84,36 +93,34 @@ class _TimekeepingScreenState extends State<TimekeepingScreen> {
       return;
     }
 
-    // Tọa độ hiện tại
     double currentLatitude = _currentPosition!.latitude;
     double currentLongitude = _currentPosition!.longitude;
 
-    // Tọa độ mục tiêu
-    double targetLatitude = 10.830126;
-    double targetLongitude = 106.618113;
-
-    // Tính khoảng cách
     double distance = Geolocator.distanceBetween(
       currentLatitude,
       currentLongitude,
-      targetLatitude,
-      targetLongitude,
+      _targetPosition.latitude,
+      _targetPosition.longitude,
     );
 
-    // In tọa độ hiện tại, tọa độ mục tiêu và khoảng cách ra console
-    print(
-        'Tọa độ hiện tại: Latitude: $currentLatitude, Longitude: $currentLongitude');
-    print(
-        'Tọa độ mục tiêu: Latitude: $targetLatitude, Longitude: $targetLongitude');
-    print('Distance: $distance meters');
-
-    // Kiểm tra khoảng cách và hiển thị thông báo
     if (distance <= banKinh) {
-      EasyLoading.showSuccess('Chấm công thành công');
-      // Thực hiện các hành động khi chấm công thành công
+      EasyLoading.showSuccess('Chấm công thành công lúc $_currentTime');
     } else {
       EasyLoading.showError(
           'Bạn không nằm trong bán kính cho phép để chấm công');
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.camera, // Sử dụng camera để chụp ảnh
+    );
+
+    if (image != null) {
+      setState(() {
+        _selectedImagePath = image.path; // Lưu đường dẫn ảnh đã chọn
+      });
     }
   }
 
@@ -138,9 +145,7 @@ class _TimekeepingScreenState extends State<TimekeepingScreen> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.info, color: Colors.white, size: 20),
-                onPressed: () {
-                  // Xử lý khi nhấn vào icon info
-                },
+                onPressed: () {},
               ),
             ],
             bottom: PreferredSize(
@@ -165,91 +170,78 @@ class _TimekeepingScreenState extends State<TimekeepingScreen> {
               ),
             ),
           ),
-          body: Stack(
+          body: TabBarView(
+            physics: NeverScrollableScrollPhysics(),
             children: [
-              TabBarView(
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: BlocBuilder<TimekeepingBloc,
-                              TimekeepingBlocState>(
-                            builder: (context, state) {
-                              return Column(
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: BlocBuilder<TimekeepingBloc, TimekeepingBlocState>(
+                        builder: (context, state) {
+                          return Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
+                                  SizedBox(height: 20),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(height: 20),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.date_range_outlined,
-                                            color: Colors.green,
-                                            size: 18,
-                                          ),
-                                          const SizedBox(width: 3),
-                                          Text(state.dateFormat),
-                                        ],
-                                      ),
-                                      const SizedBox(width: 20),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.access_time,
-                                            color: Colors.blue,
-                                            size: 18,
-                                          ),
-                                          const SizedBox(width: 3),
-                                          Text(_currentTime),
-                                        ],
-                                      ),
+                                      Icon(Icons.date_range_outlined,
+                                          color: Colors.green, size: 18),
+                                      const SizedBox(width: 3),
+                                      Text(state.dateFormat),
                                     ],
                                   ),
-                                  SizedBox(height: 20),
-                                  _isMapVisible
-                                      ? Container(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height -
-                                              220,
-                                          child: GoogleMap(
-                                            initialCameraPosition:
-                                                CameraPosition(
-                                              target: _currentPosition!,
-                                              zoom: 15,
-                                            ),
-                                            onMapCreated: (GoogleMapController
-                                                controller) {
-                                              _mapController = controller;
-                                            },
-                                            markers: {
-                                              Marker(
-                                                markerId:
-                                                    MarkerId('currentLocation'),
-                                                position: _currentPosition!,
-                                              ),
-                                            },
-                                            circles: {
-                                              Circle(
-                                                circleId: CircleId('radius'),
-                                                center: _currentPosition!,
-                                                radius: banKinh,
-                                                // Bán kính 50m
-                                                strokeColor: Colors.blue
-                                                    .withOpacity(0.5),
-                                                strokeWidth: 2,
-                                                fillColor: Colors.blue
-                                                    .withOpacity(0.2),
-                                              ),
-                                            },
+                                  const SizedBox(width: 20),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.access_time,
+                                          color: Colors.blue, size: 18),
+                                      const SizedBox(width: 3),
+                                      Text(_currentTime),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 20),
+                              _isMapVisible
+                                  ? Container(
+                                      height: 200,
+                                      child: GoogleMap(
+                                        initialCameraPosition: CameraPosition(
+                                          target: _currentPosition!,
+                                          zoom: 15,
+                                        ),
+                                        onMapCreated:
+                                            (GoogleMapController controller) {
+                                          _mapController = controller;
+                                        },
+                                        markers: {
+                                          Marker(
+                                            markerId:
+                                                MarkerId('currentLocation'),
+                                            position: _currentPosition!,
                                           ),
-                                        )
-                                      : ElevatedButton(
+                                        },
+                                        circles: {
+                                          Circle(
+                                            circleId: CircleId('radius'),
+                                            center: _currentPosition!,
+                                            radius: banKinh,
+                                            strokeColor:
+                                                Colors.blue.withOpacity(0.5),
+                                            strokeWidth: 2,
+                                            fillColor:
+                                                Colors.blue.withOpacity(0.2),
+                                          ),
+                                        },
+                                      ),
+                                    )
+                                  : !_isLocationPermissionGranted
+                                      ? ElevatedButton(
                                           onPressed: _requestLocationPermission,
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.blue,
@@ -258,55 +250,137 @@ class _TimekeepingScreenState extends State<TimekeepingScreen> {
                                                   BorderRadius.circular(10),
                                             ),
                                             padding: EdgeInsets.symmetric(
-                                              horizontal: 20,
-                                              vertical: 15,
-                                            ),
+                                                horizontal: 20, vertical: 15),
                                           ),
                                           child: Text(
                                             'Truy cập vị trí',
-                                            style: TextStyle(
-                                              color: Colors.white,
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        )
+                                      : Container(),
+                              // Nút chụp ảnh và hiển thị ảnh đã chọn
+                              GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                  margin:
+                                      const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                  width: MediaQuery.of(context).size.width -
+                                      10, // Chiều rộng của màn hình - lề
+                                  constraints: BoxConstraints(
+                                    minHeight:
+                                        300, // Chiều cao tối thiểu nếu nội dung nhỏ hơn 100
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: _selectedImagePath != null
+                                        ? DecorationImage(
+                                            image: FileImage(
+                                                File(_selectedImagePath!)),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : null,
+                                  ),
+                                  child: _selectedImagePath == null
+                                      ? Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.image,
+                                                color: Colors.blue,
+                                                size: 50,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                'Nhấn để chụp',
+                                                style: TextStyle(
+                                                    color: Colors.blue),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : Align(
+                                          alignment: Alignment
+                                              .bottomRight, // Đặt nội dung ở góc dưới bên phải
+                                          child: Container(
+                                            padding: EdgeInsets.all(
+                                                10), // Padding xung quanh nội dung
+                                            margin: EdgeInsets.all(
+                                                10), // Margin để tạo khoảng cách với cạnh hình ảnh
+                                            decoration: BoxDecoration(
+                                              color: Colors
+                                                  .blue, // Màu nền của text
+                                              borderRadius: BorderRadius.circular(
+                                                  10), // Border radius cho background
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize
+                                                  .min, // Chỉ chiếm không gian cần thiết
+                                              children: [
+                                                Icon(
+                                                  Icons.camera_alt,
+                                                  color: Colors.white,
+                                                  size: 14,
+                                                ), // Icon phù hợp
+                                                SizedBox(
+                                                    width:
+                                                        3), // Khoảng cách giữa icon và text
+                                                Text(
+                                                  'Chụp ảnh khác',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12), // Màu chữ
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),
-                                  SizedBox(height: 20),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Container(
-                      constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.5,
+                                ),
+                              ),
+
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Container(
+                                  width: double
+                                      .infinity, // Chiều rộng đầy đủ màn hình
+                                  padding: EdgeInsets.all(
+                                      8.0), // Khoảng cách xung quanh nút
+                                  child: ElevatedButton(
+                                    onPressed: _checkIn,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Colors.green, // Màu nền của nút
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 15),
+                                    ),
+                                    child: Text(
+                                      'Chấm công',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
-                      child: TimekeepingHistoryCalendar(),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              Positioned(
-                bottom: 10,
-                left: 10,
-                right: 10,
-                child: ElevatedButton(
-                  onPressed: _checkIn,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green, // background (button) color
-                    foregroundColor: Colors.white, // text color
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.5,
                   ),
-                  child: Text(
-                    'Chấm công',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                  child: TimekeepingHistoryCalendar(),
                 ),
               ),
             ],

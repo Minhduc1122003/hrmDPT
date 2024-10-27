@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1082975579017",
+    "project_id": "hrmnotification-4d0da",
+    "storage_bucket": "hrmnotification-4d0da.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1082975579017:android:ca6a72374cd59d49a38f58",
+        "android_client_info": {
+          "package_name": "com.example.hrm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwnx0MoFXgWthJZcUQdKk-WAGv9T9xEvw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

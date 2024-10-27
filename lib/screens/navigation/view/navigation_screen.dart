@@ -73,6 +73,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           body: Stack(
+
             children: [
               BlocBuilder<NavigationBloc, NavigationState>(
                 buildWhen: (previous, current) =>

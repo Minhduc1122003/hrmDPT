@@ -29,6 +29,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       LoginModel? data = await ApiProvider()
           .login(event.no_, newPassword, event.site, event.apiToken);
+
       // Implement actual login logic here
       print('data: $data');
 

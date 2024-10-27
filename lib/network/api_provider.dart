@@ -43,6 +43,25 @@ class ApiProvider {
     }
   }
 
+  Future<Response> postConnect1(String url, Map<String, dynamic> map) async {
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+    final uri = Uri.parse(url);
+    var body = jsonEncode(map);
+    final encoding = Encoding.getByName('utf-8');
+    try {
+      return await post(
+        uri,
+        headers: headers,
+        body: body,
+        encoding: encoding,
+      );
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
   Future<Response> deleteConnect(String url, String token) async {
     var headers = {
       'Content-Type': 'application/json',
@@ -65,7 +84,18 @@ class ApiProvider {
       String email, String password, String site, String token) async {
     var postData = {'no_': email, 'password': password, 'site': site};
     response = await postConnect(loginAPI, postData, token);
+    if (response.statusCode == statusOk) {
+      LoginModel model = LoginModel.fromJson(jsonDecode(response.body));
+      return model;
+    } else {
+      return null;
+    }
+  }
 
+  Future<LoginModel?> login1(String email, String password) async {
+    var postData = {'email': email, 'password': password};
+    response = await postConnect1(loginAPI1, postData);
+    print('response.statusCode: ${response.statusCode}');
     if (response.statusCode == statusOk) {
       LoginModel model = LoginModel.fromJson(jsonDecode(response.body));
       return model;

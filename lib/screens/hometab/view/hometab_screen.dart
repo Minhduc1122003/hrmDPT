@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hrm/model/login_model.dart';
+import 'package:hrm/network/notification/MyTask.dart';
+import 'package:hrm/network/notification/notification.dart';
 import 'package:hrm/screens/login/logintab.dart';
 import 'package:hrm/screens/navigation/bloc/navigation_bloc.dart';
 import 'package:hrm/screens/timekeeping/timekeeping_screen.dart';
@@ -23,6 +28,14 @@ class HomeTab extends StatefulWidget {
 
 @override
 class _HomeTabState extends State<HomeTab> {
+  bool _isServiceRunning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    NotificationHelper.initialize(); // Khởi tạo thông báo nếu cần
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -159,9 +172,7 @@ class _HomeTabState extends State<HomeTab> {
               ),
               IconButton(
                 icon: const Icon(Icons.notifications, color: Colors.white),
-                onPressed: () {
-// Handle notification icon press
-                },
+                onPressed: () async {},
               ),
             ],
           ),
